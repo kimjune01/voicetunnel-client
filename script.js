@@ -137,7 +137,7 @@ recognition.onresult = function(event) {
   if(!mobileRepeatBug) {
     noteContent += transcript;
     if (transcript != "") {
-      sendNote(transcript);
+      sendNote(transcript.toLowerCase());
     }
     noteTextarea.val(noteContent);
 
