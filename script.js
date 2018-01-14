@@ -12,7 +12,8 @@ catch(e) {
       Globals
 ------------------------------*/
 var GLOBAL_LIST = [];
-var socket = new WebSocket("ws://voiceminder.localtunnel.me/websocket/");
+// var socket = new WebSocket("ws://voiceminder.localtunnel.me/websocket/");
+var socket = new WebSocket("ws://localhost:5000/websocket/");
 
 var noteTextarea = $('#note-textarea');
 var instructions = $('#recording-instructions');
@@ -75,12 +76,9 @@ function handleDecidingState() {
 
 function handleListeningState() {
     console.log("handleListeningState");
-    raw = listen();// do this
-    if (raw) {
-        console.log('raw: ' + raw);
-        socket.send(raw);
-    }
-    handleDecidingState();
+    recognition.start();
+    noteContent = '';
+    noteTextarea.val('');
 }
 
 
@@ -96,6 +94,7 @@ recognition.continuous = true;
 
 // This block is called every time the Speech APi captures a line.
 recognition.onresult = function(event) {
+  console.log("recognition.onresult");
 
   // event is a SpeechRecognitionEvent object.
   // It holds all the lines we have captured so far.
@@ -112,7 +111,11 @@ recognition.onresult = function(event) {
 
   if(!mobileRepeatBug) {
     noteContent += transcript;
+    if (transcript != "") {
+      sendNote(transcript);
+    }
     noteTextarea.val(noteContent);
+    recognition.stop();
   }
 };
 
@@ -129,18 +132,6 @@ recognition.onerror = function(event) {
     instructions.text('No speech was detected. Try again.');
   };
 }
-
-function listen() {
-  if (noteContent.length) {
-    noteContent += ' ';
-  }
-  recognition.start();
-  sleep(2000).then(() => {
-      console.log("waited for 2 second before stopping record");
-    })
-  recognition.stop();
-}
-
 
 
 /*-----------------------------
@@ -208,9 +199,9 @@ notesList.on('click', function(e) {
 /*-----------------------------
       Speech Synthesis
 ------------------------------*/
+var speech = new SpeechSynthesisUtterance();
 
 function readOutLoud(message) {
-	var speech = new SpeechSynthesisUtterance();
 
   // Set the text and voice attributes.
 	speech.text = message;
@@ -219,6 +210,12 @@ function readOutLoud(message) {
 	speech.pitch = 1;
 
 	window.speechSynthesis.speak(speech);
+}
+
+speech.onend = function(e) {
+  console.log('speech.onend');
+  handleDecidingState();
+  // recognition.start();
 }
 
 
@@ -276,6 +273,9 @@ function deleteNote(dateTime) {
 
 socket.onopen = function (event) {
   console.log("onopen");
+  sleep(1000).then(() => {
+    console.log("waited for 1 second before deciding");
+  })
   handleDecidingState();
 };
 
