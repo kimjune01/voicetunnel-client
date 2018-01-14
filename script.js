@@ -242,3 +242,31 @@ socket.onmessage = function (event) {
   GLOBAL_LIST.push(event.data);
   setDecidingState();
 }
+
+/*-----------------------------
+      Circle Functions
+------------------------------*/
+
+/*
+Thinking - yellow
+speaking - green
+Listening - red
+Standby - no animation, grey.
+*/
+
+function toggleThinking(){
+  $('#trafficlight').css('animation', 'rippleYellow 0.7s linear infinite');
+  $('#trafficlight').css('background-color', 'yellow');
+}
+function toggleSpeaking(){
+  $('#trafficlight').css('animation', 'rippleGreen 0.7s linear infinite');
+  $('#trafficlight').css('background-color', 'rgba(101, 255, 120, 0.8)');
+}
+function toggleListening(){
+  $('#trafficlight').css('animation', 'rippleRed 0.7s linear infinite');
+  $('#trafficlight').css('background-color', 'red');
+}
+function toggleStandby(){
+  $('#trafficlight').css('animation', 'None');
+  $('#trafficlight').css('background-color', 'rgba(128,128,128,1)');
+}
