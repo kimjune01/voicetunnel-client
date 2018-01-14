@@ -13,17 +13,21 @@ catch(e) {
 ------------------------------*/
 var GLOBAL_LIST = [];
 // var socket = new WebSocket("ws://voiceminder.localtunnel.me/websocket/");
-var socket = new WebSocket("ws://localhost:5000/websocket/");
+var socket = new WebSocket("ws://voiceminder.localtunnel.me/websocket/");
 
 var noteTextarea = $('#note-textarea');
 var instructions = $('#recording-instructions');
-var notesList = $('ul#notes');
 
 var noteContent = '';
 
-// Get all notes from previous sessions and display them.
-var notes = getAllNotes();
-renderNotes(notes);
+var ClientState = Object.freeze({
+  "listening":1,
+  "speaking":2,
+  "deciding":3
+})
+
+var state = ClientState.deciding;
+
 
 /*-----------------------------
       Misc functions
@@ -36,49 +40,38 @@ function sleep (time) {
       State functions
 ------------------------------*/
 
-function on_message(message){
-    console.log('on_message: ' + message);
-    GLOBAL_LIST.push(message);
-    print('GLOBAL_LIST size: ', GLOBAL_LIST.length);
+function hasIncomingMessage(){
+  return GLOBAL_LIST.length > 0;
 }
 
-function hasIncomingMessage(){
-    return !(GLOBAL_LIST.length == 0);
-}
 function handleSpeakingState() {
     console.log("handleSpeakingState")
-    while(hasIncomingMessage()){
+    if (hasIncomingMessage()) {
         storedMessage = GLOBAL_LIST.shift();
-        console.log('storedMessage from globalQueue: ' + storedMessage);
-        //TODO: investigate storing message in var, why does it work but direct call doesnt?
         readOutLoud(storedMessage);
+        return;
     }
 
     if (GLOBAL_LIST.length == 0) {
-        console.log('handleSpeakingState: queue is empty globalQueue is empty');
-        //Speaking state complete, go back to deciding state
-        handleDecidingState();
+      setDecidingState();
     }
 }
 
 function handleDecidingState() {
-    console.log("handleDecidingState");
-    
-    sleep(150).then(() => {
-      console.log("waited for 0.15 second before deciding");
-    })
+  console.log("handleDecidingState");
+  recognition.stop();
+  sleep(150).then(() => {
     if (hasIncomingMessage()) {
-        handleSpeakingState();
+      setSpeakingState();
     } else {
-        handleListeningState();
+      setListeningState();
     }
+  });
 }
 
 function handleListeningState() {
     console.log("handleListeningState");
     recognition.start();
-    noteContent = '';
-    noteTextarea.val('');
 }
 
 
@@ -115,7 +108,8 @@ recognition.onresult = function(event) {
       sendNote(transcript);
     }
     noteTextarea.val(noteContent);
-    recognition.stop();
+
+    setDecidingState();
   }
 };
 
@@ -176,25 +170,6 @@ $('#save-note-btn').on('click', function(e) {
 })
 
 
-notesList.on('click', function(e) {
-  e.preventDefault();
-  var target = $(e.target);
-
-  // Listen to the selected note.
-  if(target.hasClass('listen-note')) {
-    var content = target.closest('.note').find('.content').text();
-    readOutLoud(content);
-  }
-
-  // Delete note.
-  if(target.hasClass('delete-note')) {
-    var dateTime = target.siblings('.date').text();
-    deleteNote(dateTime);
-    target.closest('.note').remove();
-  }
-});
-
-
 
 /*-----------------------------
       Speech Synthesis
@@ -202,69 +177,50 @@ notesList.on('click', function(e) {
 var speech = new SpeechSynthesisUtterance();
 
 function readOutLoud(message) {
-
   // Set the text and voice attributes.
+  state = ClientState.speaking
 	speech.text = message;
 	speech.volume = 1;
 	speech.rate = 1;
 	speech.pitch = 1;
-
 	window.speechSynthesis.speak(speech);
+
 }
 
 speech.onend = function(e) {
   console.log('speech.onend');
-  handleDecidingState();
-  // recognition.start();
+  setDecidingState();
 }
 
+function setDecidingState() {
+  state = ClientState.deciding;
+  handleDecidingState();
+}
 
+function setListeningState() {
+  if (state == ClientState.listening) {
+    console.log("Already listening");
+    return;
+  }
+  state = ClientState.listening;
+  handleListeningState();
+}
+
+function setSpeakingState() {
+  state = ClientState.speaking;
+  handleSpeakingState();
+}
 
 /*-----------------------------
       Helper Functions
 ------------------------------*/
 
-function renderNotes(notes) {
-  var html = '';
-  if(notes.length) {
-    notes.forEach(function(note) {
-      html+= `<li class="note">
-        <p class="header">
-          <span class="date">${note.date}</span>
-          <a href="#" class="listen-note" title="Listen to Note">Listen to Note</a>
-          <a href="#" class="delete-note" title="Delete">Delete</a>
-        </p>
-        <p class="content">${note.content}</p>
-      </li>`;
-    });
-  }
-  else {
-    html = '<li><p class="content">You don\'t have any notes yet.</p></li>';
-  }
-  notesList.html(html);
-}
-
 
 function sendNote(content) {
-  console.log("sendNote");
+  console.log("sendNote: ", content);
   socket.send(content);
 }
 
-function getAllNotes() {
-  var notes = [];
-  var key;
-  for (var i = 0; i < localStorage.length; i++) {
-    key = localStorage.key(i);
-
-    if(key.substring(0,5) == 'note-') {
-      notes.push({
-        date: key.replace('note-',''),
-        content: localStorage.getItem(localStorage.key(i))
-      });
-    }
-  }
-  return notes;
-}
 
 
 function deleteNote(dateTime) {
@@ -276,10 +232,11 @@ socket.onopen = function (event) {
   sleep(1000).then(() => {
     console.log("waited for 1 second before deciding");
   })
-  handleDecidingState();
+  setDecidingState();
 };
 
 socket.onmessage = function (event) {
-  console.log("onMessage");
-  readOutLoud(event.data);
+  console.log('onmessage: ' + event.data);
+  GLOBAL_LIST.push(event.data);
+  setDecidingState();
 }
