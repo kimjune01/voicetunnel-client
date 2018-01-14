@@ -82,19 +82,19 @@ function handleListeningState() {
 
 function restartRecognition(){
   console.log("restartRecognition - off and on again.");
-  recognition.abort();
+  recognition.stop();
   recognition.start();
 }
 
-self.onmessage = function(){
-  handleListeningState();
-}
+//self.onmessage = function(){
+//  handleListeningState();
+//}
 
-function recogTimer(time){
-  var countdown = setInterval(function(){
-    self.postMessage({'Timeleft': time}, '*');
-  },8000);
-}
+//function recogTimer(time){
+//  var countdown = setInterval(function(){
+//    self.postMessage({'Timeleft': time}, '*');
+//  },8000);
+//}
 
 /*-----------------------------
       Voice Recognition
@@ -103,7 +103,7 @@ function recogTimer(time){
 // If false, the recording will stop after a few seconds of silence.
 // When true, the silence period is longer (about 15 seconds),
 // allowing us to keep recording even when the user pauses.
-recognition.continuous = false;
+recognition.continuous = true;
 
 // This block is called every time the Speech APi captures a line.
 recognition.onresult = function(event) {
@@ -139,9 +139,6 @@ recognition.onstart = function() {
 }
 
 recognition.onaudioend = function() {
-  console.log("onaudioend");
-  recognition.stop();
-  handleListeningState();
   instructions.text('You were quiet for a while so voice recognition turned itself off.');
 }
 
