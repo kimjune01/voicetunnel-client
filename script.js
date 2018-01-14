@@ -1,6 +1,8 @@
 try {
   var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   var recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
 }
 catch(e) {
   console.error(e);
@@ -8,13 +10,23 @@ catch(e) {
   $('.app').hide();
 }
 
+function hasUserMedia() {
+   //check if the browser supports the WebRTC
+   return !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
+      navigator.mozGetUserMedia);
+}
+
+console.log("hasUserMedia?" + hasUserMedia());
+
+if (hasUserMedia()) {
+  toggleStandby()
+}
 /*-----------------------------
       Globals
 ------------------------------*/
 var GLOBAL_LIST = [];
-// var socket = new WebSocket("ws://voiceminder.localtunnel.me/websocket/");
-var socket = new WebSocket("ws://voiceminder.localtunnel.me/websocket/");
-
+var socket = new WebSocket("wss://voiceminder.localtunnel.me/websocket/");
+// var socket = new WebSocket("wss://tornado.localtunnel.me/websocket/");
 var noteTextarea = $('#note-textarea');
 var instructions = $('#recording-instructions');
 
@@ -47,7 +59,7 @@ function hasIncomingMessage(){
 function handleSpeakingState() {
     console.log("handleSpeakingState")
     if (hasIncomingMessage()) {
-        storedMessage = GLOBAL_LIST[0];
+        storedMessage = GLOBAL_LIST.shift();
         readOutLoud(storedMessage);
         return;
     }
@@ -73,6 +85,7 @@ function handleListeningState() {
     console.log("handleListeningState");
     recognition.stop();
     recognition.start();
+    setTimeout(handleDecidingState, 5000);
 }
 
 
@@ -190,7 +203,7 @@ function readOutLoud(message) {
 
 speech.onend = function(e) {
   console.log('speech.onend');
-  GLOBAL_LIST.pop();
+  // GLOBAL_LIST.pop();
   setDecidingState();
 }
 
