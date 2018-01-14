@@ -8,6 +8,11 @@ catch(e) {
   $('.app').hide();
 }
 
+/*-----------------------------
+      Globals
+------------------------------*/
+var GLOBAL_LIST = [];
+var socket = new WebSocket("ws://voiceminder.localtunnel.me/websocket/");
 
 var noteTextarea = $('#note-textarea');
 var instructions = $('#recording-instructions');
@@ -18,6 +23,65 @@ var noteContent = '';
 // Get all notes from previous sessions and display them.
 var notes = getAllNotes();
 renderNotes(notes);
+
+/*-----------------------------
+      Misc functions
+------------------------------*/
+function sleep (time) {
+  return new Promise((resolve) => setTimeout(resolve, time));
+}
+
+/*-----------------------------
+      State functions
+------------------------------*/
+
+function on_message(message){
+    console.log('on_message: ' + message);
+    GLOBAL_LIST.push(message);
+    print('GLOBAL_LIST size: ', GLOBAL_LIST.length);
+}
+
+function hasIncomingMessage(){
+    return !(GLOBAL_LIST.length == 0);
+}
+function handleSpeakingState() {
+    console.log("handleSpeakingState")
+    while(hasIncomingMessage()){
+        storedMessage = GLOBAL_LIST.shift();
+        console.log('storedMessage from globalQueue: ' + storedMessage);
+        //TODO: investigate storing message in var, why does it work but direct call doesnt?
+        readOutLoud(storedMessage);
+    }
+
+    if (GLOBAL_LIST.length == 0) {
+        console.log('handleSpeakingState: queue is empty globalQueue is empty');
+        //Speaking state complete, go back to deciding state
+        handleDecidingState();
+    }
+}
+
+function handleDecidingState() {
+    console.log("handleDecidingState");
+    
+    sleep(150).then(() => {
+      console.log("waited for 0.15 second before deciding");
+    })
+    if (hasIncomingMessage()) {
+        handleSpeakingState();
+    } else {
+        handleListeningState();
+    }
+}
+
+function handleListeningState() {
+    console.log("handleListeningState");
+    raw = listen();// do this
+    if (raw) {
+        console.log('raw: ' + raw);
+        socket.send(raw);
+    }
+    handleDecidingState();
+}
 
 
 
@@ -64,6 +128,17 @@ recognition.onerror = function(event) {
   if(event.error == 'no-speech') {
     instructions.text('No speech was detected. Try again.');
   };
+}
+
+function listen() {
+  if (noteContent.length) {
+    noteContent += ' ';
+  }
+  recognition.start();
+  sleep(2000).then(() => {
+      console.log("waited for 2 second before stopping record");
+    })
+  recognition.stop();
 }
 
 
@@ -199,10 +274,9 @@ function deleteNote(dateTime) {
   localStorage.removeItem('note-' + dateTime);
 }
 
-
-var socket = new WebSocket("ws://voiceminder.localtunnel.me/websocket/")
 socket.onopen = function (event) {
   console.log("onopen");
+  handleDecidingState();
 };
 
 socket.onmessage = function (event) {
