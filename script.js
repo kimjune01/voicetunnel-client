@@ -27,7 +27,7 @@ var ClientState = Object.freeze({
 })
 
 var state = ClientState.deciding;
-
+var recogStarted = false;
 
 /*-----------------------------
       Misc functions
@@ -69,13 +69,32 @@ function handleDecidingState() {
   }
 }
 
+//Want to multithread.
+//Listening state seems to crash when open for too long.
+//Wanting to resolve this by having a counter reset the listening state after a certain period of time.
+
 function handleListeningState() {
     console.log("handleListeningState");
-    recognition.stop();
-    recognition.start();
+    console.log("done handleListeningState");
+    //recogTimer(20);
+    restartRecognition();
 }
 
+function restartRecognition(){
+  console.log("restartRecognition - off and on again.");
+  recognition.abort();
+  recognition.start();
+}
 
+self.onmessage = function(){
+  handleListeningState();
+}
+
+function recogTimer(time){
+  var countdown = setInterval(function(){
+    self.postMessage({'Timeleft': time}, '*');
+  },8000);
+}
 
 /*-----------------------------
       Voice Recognition
@@ -84,7 +103,7 @@ function handleListeningState() {
 // If false, the recording will stop after a few seconds of silence.
 // When true, the silence period is longer (about 15 seconds),
 // allowing us to keep recording even when the user pauses.
-recognition.continuous = true;
+recognition.continuous = false;
 
 // This block is called every time the Speech APi captures a line.
 recognition.onresult = function(event) {
@@ -114,13 +133,18 @@ recognition.onresult = function(event) {
   }
 };
 
+//These aren't being accessed with the 10s timeout bug.  Problem is not here.
 recognition.onstart = function() {
   instructions.text('Voice recognition activated. Try speaking into the microphone.');
 }
 
-recognition.onspeechend = function() {
+recognition.onaudioend = function() {
+  console.log("onaudioend");
+  recognition.stop();
+  handleListeningState();
   instructions.text('You were quiet for a while so voice recognition turned itself off.');
 }
+
 
 recognition.onerror = function(event) {
   if(event.error == 'no-speech') {
