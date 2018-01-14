@@ -120,10 +120,7 @@ recognition.continuous = true;
 // This block is called every time the Speech APi captures a line.
 recognition.onresult = function(event) {
   console.log("recognition.onresult");
-<<<<<<< HEAD
-=======
 
->>>>>>> junedev
   // event is a SpeechRecognitionEvent object.
   // It holds all the lines we have captured so far.
   // We only need the current one.
@@ -131,6 +128,7 @@ recognition.onresult = function(event) {
 
   // Get a transcript of what was said.
   var transcript = event.results[current][0].transcript;
+
   // Add the current transcript to the contents of our Note.
   // There is a weird bug on mobile, where everything is repeated twice.
   // There is no official solution so far so we have to handle an edge case.
@@ -139,39 +137,27 @@ recognition.onresult = function(event) {
   if(!mobileRepeatBug) {
     noteContent += transcript;
     if (transcript != "") {
-<<<<<<< HEAD
-      sendNote(transcript);
-    }
-=======
       sendNote(transcript.toLowerCase());
     }
     noteTextarea.val(noteContent);
 
     setDecidingState();
->>>>>>> junedev
   }
-  recognition.stop();
 };
 
 //These aren't being accessed with the 10s timeout bug.  Problem is not here.
 recognition.onstart = function() {
-  console.log("recognition.onstart");
+  instructions.text('Voice recognition activated. Try speaking into the microphone.');
 }
 
-<<<<<<< HEAD
-recognition.onspeechend = function() {
-  console.log("recognition.onspeechend");
-=======
 recognition.onaudioend = function() {
   instructions.text('You were quiet for a while so voice recognition turned itself off.');
->>>>>>> junedev
 }
 
 
 recognition.onerror = function(event) {
-  console.log("recognition.onerror");
   if(event.error == 'no-speech') {
-    console.log('No speech was detected. Try again.');
+    instructions.text('No speech was detected. Try again.');
   };
 }
 
@@ -190,7 +176,7 @@ $('#start-record-btn').on('click', function(e) {
 
 $('#pause-record-btn').on('click', function(e) {
   recognition.stop();
-  console.log('Voice recognition paused.');
+  instructions.text('Voice recognition paused.');
 });
 
 // Sync the text inside the text area with the noteContent variable.
@@ -202,8 +188,19 @@ $('#save-note-btn').on('click', function(e) {
   recognition.stop();
 
   if(!noteContent.length) {
-    console.log('Could not save empty note. Please add a message to your note.');
+    instructions.text('Could not save empty note. Please add a message to your note.');
   }
+  else {
+    // Save note to localStorage.
+    // The key is the dateTime with seconds, the value is the content of the note.
+    sendNote(noteContent);
+    // saveNote(new Date().toLocaleString(), noteContent);
+
+    // Reset variables and update UI.
+    noteContent = '';
+    noteTextarea.val('');
+  }
+
 })
 
 
@@ -213,13 +210,7 @@ $('#save-note-btn').on('click', function(e) {
 ------------------------------*/
 var speech = new SpeechSynthesisUtterance();
 
-var speech = new SpeechSynthesisUtterance();
-
 function readOutLoud(message) {
-<<<<<<< HEAD
-
-=======
->>>>>>> junedev
   // Set the text and voice attributes.
   state = ClientState.speaking
 	speech.text = message;
@@ -230,16 +221,10 @@ function readOutLoud(message) {
 
 }
 
-<<<<<<< HEAD
-speech.onend = function (e) {
-  console.log("speech.onend");
-  recognition.start();
-=======
 speech.onend = function(e) {
   console.log('speech.onend');
   // GLOBAL_LIST.pop();
   setDecidingState();
->>>>>>> junedev
 }
 
 function setDecidingState() {
@@ -270,13 +255,8 @@ function setSpeakingState() {
 
 
 function sendNote(content) {
-<<<<<<< HEAD
-  console.log("sendNote");
-  socket.send(content.toLowerCase());
-=======
   console.log("sendNote: ", content);
   socket.send(content);
->>>>>>> junedev
 }
 
 
