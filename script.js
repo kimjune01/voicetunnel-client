@@ -47,7 +47,7 @@ function hasIncomingMessage(){
 function handleSpeakingState() {
     console.log("handleSpeakingState")
     if (hasIncomingMessage()) {
-        storedMessage = GLOBAL_LIST.shift();
+        storedMessage = GLOBAL_LIST[0];
         readOutLoud(storedMessage);
         return;
     }
@@ -61,16 +61,17 @@ function handleDecidingState() {
   console.log("handleDecidingState");
   recognition.stop();
   sleep(150).then(() => {
-    if (hasIncomingMessage()) {
-      setSpeakingState();
-    } else {
-      setListeningState();
-    }
   });
+  if (hasIncomingMessage()) {
+    setSpeakingState();
+  } else {
+    setListeningState();
+  }
 }
 
 function handleListeningState() {
     console.log("handleListeningState");
+    recognition.stop();
     recognition.start();
 }
 
@@ -189,6 +190,7 @@ function readOutLoud(message) {
 
 speech.onend = function(e) {
   console.log('speech.onend');
+  GLOBAL_LIST.pop();
   setDecidingState();
 }
 
