@@ -196,6 +196,7 @@ speech.onend = function(e) {
 
 function setDecidingState() {
   state = ClientState.deciding;
+  toggleThinking();
   handleDecidingState();
 }
 
@@ -205,11 +206,13 @@ function setListeningState() {
     return;
   }
   state = ClientState.listening;
+  toggleListening();
   handleListeningState();
 }
 
 function setSpeakingState() {
   state = ClientState.speaking;
+  toggleSpeaking();
   handleSpeakingState();
 }
 
@@ -249,8 +252,8 @@ socket.onmessage = function (event) {
 
 /*
 Thinking - yellow
-speaking - green
-Listening - red
+speaking - red
+Listening - green
 Standby - no animation, grey.
 */
 
@@ -258,11 +261,11 @@ function toggleThinking(){
   $('#trafficlight').css('animation', 'rippleYellow 0.7s linear infinite');
   $('#trafficlight').css('background-color', 'yellow');
 }
-function toggleSpeaking(){
+function toggleListening(){
   $('#trafficlight').css('animation', 'rippleGreen 0.7s linear infinite');
   $('#trafficlight').css('background-color', 'rgba(101, 255, 120, 0.8)');
 }
-function toggleListening(){
+function toggleSpeaking(){
   $('#trafficlight').css('animation', 'rippleRed 0.7s linear infinite');
   $('#trafficlight').css('background-color', 'red');
 }
