@@ -1,6 +1,8 @@
 try {
   var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   var recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
 }
 catch(e) {
   console.error(e);
@@ -8,18 +10,103 @@ catch(e) {
   $('.app').hide();
 }
 
+function hasUserMedia() {
+   //check if the browser supports the WebRTC
+   return !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
+      navigator.mozGetUserMedia);
+}
 
+console.log("hasUserMedia?" + hasUserMedia());
+
+if (hasUserMedia()) {
+  toggleStandby()
+}
+/*-----------------------------
+      Globals
+------------------------------*/
+var GLOBAL_LIST = [];
+var socket = new WebSocket("wss://voiceminder.localtunnel.me/websocket/");
+// var socket = new WebSocket("wss://tornado.localtunnel.me/websocket/");
 var noteTextarea = $('#note-textarea');
 var instructions = $('#recording-instructions');
-var notesList = $('ul#notes');
 
 var noteContent = '';
 
-// Get all notes from previous sessions and display them.
-var notes = getAllNotes();
-renderNotes(notes);
+var ClientState = Object.freeze({
+  "listening":1,
+  "speaking":2,
+  "deciding":3
+})
 
+var state = ClientState.deciding;
+var recogStarted = false;
 
+/*-----------------------------
+      Misc functions
+------------------------------*/
+function sleep (time) {
+  return new Promise((resolve) => setTimeout(resolve, time));
+}
+
+/*-----------------------------
+      State functions
+------------------------------*/
+
+function hasIncomingMessage(){
+  return GLOBAL_LIST.length > 0;
+}
+
+function handleSpeakingState() {
+    console.log("handleSpeakingState")
+    if (hasIncomingMessage()) {
+        storedMessage = GLOBAL_LIST.shift();
+        readOutLoud(storedMessage);
+        return;
+    }
+
+    if (GLOBAL_LIST.length == 0) {
+      setDecidingState();
+    }
+}
+
+function handleDecidingState() {
+  console.log("handleDecidingState");
+  recognition.stop();
+  sleep(150).then(() => {
+  });
+  if (hasIncomingMessage()) {
+    setSpeakingState();
+  } else {
+    setListeningState();
+  }
+}
+
+//Want to multithread.
+//Listening state seems to crash when open for too long.
+//Wanting to resolve this by having a counter reset the listening state after a certain period of time.
+
+function handleListeningState() {
+    console.log("handleListeningState");
+    console.log("done handleListeningState");
+    //recogTimer(20);
+    restartRecognition();
+}
+
+function restartRecognition(){
+  console.log("restartRecognition - off and on again.");
+  recognition.stop();
+  recognition.start();
+}
+
+//self.onmessage = function(){
+//  handleListeningState();
+//}
+
+//function recogTimer(time){
+//  var countdown = setInterval(function(){
+//    self.postMessage({'Timeleft': time}, '*');
+//  },8000);
+//}
 
 /*-----------------------------
       Voice Recognition
@@ -33,6 +120,10 @@ recognition.continuous = true;
 // This block is called every time the Speech APi captures a line.
 recognition.onresult = function(event) {
   console.log("recognition.onresult");
+<<<<<<< HEAD
+=======
+
+>>>>>>> junedev
   // event is a SpeechRecognitionEvent object.
   // It holds all the lines we have captured so far.
   // We only need the current one.
@@ -48,19 +139,34 @@ recognition.onresult = function(event) {
   if(!mobileRepeatBug) {
     noteContent += transcript;
     if (transcript != "") {
+<<<<<<< HEAD
       sendNote(transcript);
     }
+=======
+      sendNote(transcript.toLowerCase());
+    }
+    noteTextarea.val(noteContent);
+
+    setDecidingState();
+>>>>>>> junedev
   }
   recognition.stop();
 };
 
+//These aren't being accessed with the 10s timeout bug.  Problem is not here.
 recognition.onstart = function() {
   console.log("recognition.onstart");
 }
 
+<<<<<<< HEAD
 recognition.onspeechend = function() {
   console.log("recognition.onspeechend");
+=======
+recognition.onaudioend = function() {
+  instructions.text('You were quiet for a while so voice recognition turned itself off.');
+>>>>>>> junedev
 }
+
 
 recognition.onerror = function(event) {
   console.log("recognition.onerror");
@@ -68,7 +174,6 @@ recognition.onerror = function(event) {
     console.log('No speech was detected. Try again.');
   };
 }
-
 
 
 /*-----------------------------
@@ -102,107 +207,122 @@ $('#save-note-btn').on('click', function(e) {
 })
 
 
-notesList.on('click', function(e) {
-  e.preventDefault();
-  var target = $(e.target);
-
-  // Listen to the selected note.
-  if(target.hasClass('listen-note')) {
-    var content = target.closest('.note').find('.content').text();
-    readOutLoud(content);
-  }
-
-  // Delete note.
-  if(target.hasClass('delete-note')) {
-    var dateTime = target.siblings('.date').text();
-    deleteNote(dateTime);
-    target.closest('.note').remove();
-  }
-});
-
-
 
 /*-----------------------------
       Speech Synthesis
 ------------------------------*/
+var speech = new SpeechSynthesisUtterance();
 
 var speech = new SpeechSynthesisUtterance();
 
 function readOutLoud(message) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> junedev
   // Set the text and voice attributes.
+  state = ClientState.speaking
 	speech.text = message;
 	speech.volume = 1;
 	speech.rate = 1;
 	speech.pitch = 1;
-
 	window.speechSynthesis.speak(speech);
+
 }
 
+<<<<<<< HEAD
 speech.onend = function (e) {
   console.log("speech.onend");
   recognition.start();
+=======
+speech.onend = function(e) {
+  console.log('speech.onend');
+  // GLOBAL_LIST.pop();
+  setDecidingState();
+>>>>>>> junedev
 }
 
+function setDecidingState() {
+  state = ClientState.deciding;
+  toggleThinking();
+  handleDecidingState();
+}
+
+function setListeningState() {
+  if (state == ClientState.listening) {
+    console.log("Already listening");
+    return;
+  }
+  state = ClientState.listening;
+  toggleListening();
+  handleListeningState();
+}
+
+function setSpeakingState() {
+  state = ClientState.speaking;
+  toggleSpeaking();
+  handleSpeakingState();
+}
 
 /*-----------------------------
       Helper Functions
 ------------------------------*/
 
-function renderNotes(notes) {
-  var html = '';
-  if(notes.length) {
-    notes.forEach(function(note) {
-      html+= `<li class="note">
-        <p class="header">
-          <span class="date">${note.date}</span>
-          <a href="#" class="listen-note" title="Listen to Note">Listen to Note</a>
-          <a href="#" class="delete-note" title="Delete">Delete</a>
-        </p>
-        <p class="content">${note.content}</p>
-      </li>`;
-    });
-  }
-  else {
-    html = '<li><p class="content">You don\'t have any notes yet.</p></li>';
-  }
-  notesList.html(html);
-}
-
 
 function sendNote(content) {
+<<<<<<< HEAD
   console.log("sendNote");
   socket.send(content.toLowerCase());
+=======
+  console.log("sendNote: ", content);
+  socket.send(content);
+>>>>>>> junedev
 }
 
-function getAllNotes() {
-  var notes = [];
-  var key;
-  for (var i = 0; i < localStorage.length; i++) {
-    key = localStorage.key(i);
-
-    if(key.substring(0,5) == 'note-') {
-      notes.push({
-        date: key.replace('note-',''),
-        content: localStorage.getItem(localStorage.key(i))
-      });
-    }
-  }
-  return notes;
-}
 
 
 function deleteNote(dateTime) {
   localStorage.removeItem('note-' + dateTime);
 }
 
-
-var socket = new WebSocket("ws://voiceminder.localtunnel.me/websocket/")
 socket.onopen = function (event) {
   console.log("onopen");
+  sleep(1000).then(() => {
+    console.log("waited for 1 second before deciding");
+  })
+  setDecidingState();
 };
 
 socket.onmessage = function (event) {
-  console.log("onMessage");
-  readOutLoud(event.data);
+  console.log('onmessage: ' + event.data);
+  GLOBAL_LIST.push(event.data);
+  setDecidingState();
+}
+
+/*-----------------------------
+      Circle Functions
+------------------------------*/
+
+/*
+Thinking - yellow
+speaking - red
+Listening - green
+Standby - no animation, grey.
+*/
+
+function toggleThinking(){
+  $('#trafficlight').css('animation', 'rippleYellow 0.7s linear infinite');
+  $('#trafficlight').css('background-color', 'yellow');
+}
+function toggleListening(){
+  $('#trafficlight').css('animation', 'rippleGreen 0.7s linear infinite');
+  $('#trafficlight').css('background-color', 'rgba(101, 255, 120, 0.8)');
+}
+function toggleSpeaking(){
+  $('#trafficlight').css('animation', 'rippleRed 0.7s linear infinite');
+  $('#trafficlight').css('background-color', 'red');
+}
+function toggleStandby(){
+  $('#trafficlight').css('animation', 'None');
+  $('#trafficlight').css('background-color', 'rgba(128,128,128,1)');
 }
