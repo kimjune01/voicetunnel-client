@@ -1,8 +1,7 @@
 try {
   var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   var recognition = new SpeechRecognition();
-  recognition.continuous = false;
-  recognition.interimResults = false;
+  bindSpeechRecognition()
 }
 catch(e) {
   console.error(e);
@@ -38,7 +37,7 @@ var ClientState = Object.freeze({
   "deciding":3
 })
 
-var state = ClientState.deciding;
+var state = ClientState.listening;
 var recogStarted = false;
 
 /*-----------------------------
@@ -91,13 +90,6 @@ function handleListeningState() {
     //recogTimer(20);
     restartRecognition();
 }
-
-function restartRecognition(){
-  console.log("restartRecognition - off and on again.");
-  recognition.stop();
-  recognition.start();
-}
-
 //self.onmessage = function(){
 //  handleListeningState();
 //}
@@ -115,52 +107,71 @@ function restartRecognition(){
 // If false, the recording will stop after a few seconds of silence.
 // When true, the silence period is longer (about 15 seconds),
 // allowing us to keep recording even when the user pauses.
-recognition.continuous = true;
+function bindSpeechRecognition() {
+  recognition.continuous = false;
+  recognition.interimResults = false;
 
-// This block is called every time the Speech APi captures a line.
-recognition.onresult = function(event) {
-  console.log("recognition.onresult");
+  // This block is called every time the Speech APi captures a line.
+  recognition.onresult = function(event) {
+    console.log("recognition.onresult");
 
-  // event is a SpeechRecognitionEvent object.
-  // It holds all the lines we have captured so far.
-  // We only need the current one.
-  var current = event.resultIndex;
+    // event is a SpeechRecognitionEvent object.
+    // It holds all the lines we have captured so far.
+    // We only need the current one.
+    var current = event.resultIndex;
 
-  // Get a transcript of what was said.
-  var transcript = event.results[current][0].transcript;
+    // Get a transcript of what was said.
+    var transcript = event.results[current][0].transcript;
 
-  // Add the current transcript to the contents of our Note.
-  // There is a weird bug on mobile, where everything is repeated twice.
-  // There is no official solution so far so we have to handle an edge case.
-  var mobileRepeatBug = (current == 1 && transcript == event.results[0][0].transcript);
+    // Add the current transcript to the contents of our Note.
+    // There is a weird bug on mobile, where everything is repeated twice.
+    // There is no official solution so far so we have to handle an edge case.
+    var mobileRepeatBug = (current == 1 && transcript == event.results[0][0].transcript);
 
-  if(!mobileRepeatBug) {
-    noteContent += transcript;
-    if (transcript != "") {
-      sendNote(transcript.toLowerCase());
+    if(!mobileRepeatBug) {
+      noteContent += transcript;
+      if (transcript != "") {
+        sendNote(transcript.toLowerCase());
+      }
+      noteTextarea.val(noteContent);
+
+      setDecidingState();
     }
-    noteTextarea.val(noteContent);
-
-    setDecidingState();
-  }
-};
-
-//These aren't being accessed with the 10s timeout bug.  Problem is not here.
-recognition.onstart = function() {
-  instructions.text('Voice recognition activated. Try speaking into the microphone.');
-}
-
-recognition.onaudioend = function() {
-  instructions.text('You were quiet for a while so voice recognition turned itself off.');
-}
-
-
-recognition.onerror = function(event) {
-  if(event.error == 'no-speech') {
-    instructions.text('No speech was detected. Try again.');
   };
+
+  recognition.onaudioend = function() {
+    console.log("recognition.onaudioend")
+    // setDecidingState()
+  }
+
+
+  recognition.onerror = function(event) {
+    if(event.error == 'no-speech') {
+      instructions.text('No speech was detected. Try again.');
+    };
+  }
+
+  recognition.onnomatch = function(e) {
+    console.log("recognition.onnomatch")
+  }
+
+  recognition.onsoundend = function (e) {
+    console.log("recognition.onsoundend")
+    setDecidingState()
+  }
 }
 
+
+
+
+
+function restartRecognition(){
+  console.log("restartRecognition - off and on again.");
+  recognition = new SpeechRecognition();
+  bindSpeechRecognition()
+  // recognition.stop();
+  recognition.start();
+}
 
 /*-----------------------------
       App buttons and input
@@ -228,13 +239,17 @@ speech.onend = function(e) {
 }
 
 function setDecidingState() {
+  if (state === ClientState.deciding) {
+    console.log("Already deciding")
+    return
+  }
   state = ClientState.deciding;
   toggleThinking();
   handleDecidingState();
 }
 
 function setListeningState() {
-  if (state == ClientState.listening) {
+  if (state === ClientState.listening) {
     console.log("Already listening");
     return;
   }
