@@ -338,11 +338,11 @@ function cleanHeartClasses(){
 
 //write to the p tag at the bottom of the page.
 function writeToPage(text){
-  $(".crawl").append('<p style="color:red">' + text + '</p><br/>');
+  $(".crawl").append('<p style="color:red">' + text + '</p>');
 }
 
 function respondToPage(text){
-  $(".crawl").append('<p style="color:blue">' + text + '</p><br/>');
+  $(".crawl").append('<p style="color:blue">' + text + '</p>');
 }
 
 writeToPage("once upon a time there was a big turtle and his small tortoise friend.  They were very ugly.");
