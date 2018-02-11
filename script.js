@@ -341,10 +341,10 @@ function writeToPage(text){
   $(".crawl").append('<p style="color:red">' + text + '</p><br/>');
 }
 
-function respondToUser(text){
+function respondToPage(text){
   $(".crawl").append('<p style="color:blue">' + text + '</p><br/>');
 }
 
 writeToPage("once upon a time there was a big turtle and his small tortoise friend.  They were very ugly.");
-writeToPage("one day, they were walking through the forest and decided to eat some shrooms.");
+respondToPage("one day, they were walking through the forest and decided to eat some shrooms.");
 writeToPage("They choked on them and died, the end.");
