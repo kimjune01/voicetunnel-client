@@ -205,6 +205,9 @@ $('#save-note-btn').on('click', function(e) {
     // Save note to localStorage.
     // The key is the dateTime with seconds, the value is the content of the note.
     sendNote(noteContent);
+
+    writeToPage(noteContent);
+
     // saveNote(new Date().toLocaleString(), noteContent);
 
     // Reset variables and update UI.
@@ -229,7 +232,7 @@ function readOutLoud(message) {
 	speech.rate = 1;
 	speech.pitch = 1;
 	window.speechSynthesis.speak(speech);
-
+  respondToPage(speech.text);
 }
 
 speech.onend = function(e) {
@@ -344,7 +347,3 @@ function writeToPage(text){
 function respondToPage(text){
   $(".crawl").append('<p style="color:blue">' + text + '</p>');
 }
-
-writeToPage("once upon a time there was a big turtle and his small tortoise friend.  They were very ugly.");
-respondToPage("one day, they were walking through the forest and decided to eat some shrooms.");
-writeToPage("They choked on them and died, the end.");
