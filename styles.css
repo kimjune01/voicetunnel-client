@@ -1,108 +1,16 @@
+/*heart is Shamelessly stolen from http://jsfiddle.net/nwznn/*/
 
-ul {
-    list-style: none;
-    padding: 0;
-}
+/*can't seem to modify pseudo-styles with jquery easily - doing the easy way by making a bunch of styles specific to colors.*/
+.heart {
+ position:absolute;
+ width: 100px;
+ height: 90px;
+ top: 200px;
 
-p {
-    color: #444;
-}
-
-button:focus {
-    outline: 0;
-}
-
-.container {
-    max-width: 700px;
-    margin: 0 auto;
-    padding: 100px 50px;
-    text-align: center;
-}
-
-.container h1 {
-    margin-bottom: 20px;
-}
-
-.page-description {
-    font-size: 1.1rem;
-    margin: 0 auto;
-}
-
-.tz-link {
-    font-size: 1em;
-    color: #1da7da;
-    text-decoration: none;
-}
-
-.no-browser-support {
-    display: none;
-    font-size: 1.2rem;
-    color: #e64427;
-    margin-top: 35px;
-}
-
-.app {
-    margin: 40px auto;
-}
-
-#note-textarea {
-    margin: 20px 0;
-}
-
-#recording-instructions {
-    margin: 15px auto 60px;
-}
-
-#notes {
-    padding-top: 20px;
-}
-
-.note .header {
-    font-size: 0.9em;
-    color: #888;
-    margin-bottom: 10px;
-}
-
-.note .delete-note,
-.note .listen-note {
-    text-decoration: none;
-    margin-left: 15px;
-}
-
-.note .content {
-    margin-bottom: 40px;
-}
-
-@media (max-width: 768px) {
-    .container {
-        padding: 50px 25px;
-    }
-
-    button {
-        margin-bottom: 10px;
-    }
-}
-
-/* -- Demo ads -- */
-
-@media (max-width: 1200px) {
-    #bsaHolder{ display:none;}
-}
-
-/*ripped from https://codepen.io/FabienMotte/pen/gPKVxE*/
-
-html,
-body {
-  width: 100%;
-  height: 100%;
-}
-.circle{
-    width: 100px;
-    height: 100px;
-    background: red;
-    -moz-border-radius: 50px;
-    -webkit-border-radius: 50px;
-    border-radius: 50px;
+ width: 1em;
+ height: 1em;
+ border-radius: 50%;
+ /*-webkit-animation: rippleRed 0.7s linear infinite;*/
 }
 
 body {
@@ -117,45 +25,155 @@ body {
           justify-content: center;
 }
 
-.circle-ripple {
-  background-color: #35ffc3;
-  width: 1em;
-  height: 1em;
-  margin: 100px auto;
-  border-radius: 50%;
-  -webkit-animation: rippleGreen 0.7s linear infinite;
-  animation: rippleGreen 0.7s linear infinite;
+
+.heartSpeaking, .heartListening, .heartStandby, .heartThinking{}
+
+  @-webkit-keyframes rippleGreen {
+    0% {
+      -webkit-box-shadow: 0 0 0 0 rgba(101, 255, 120, 0.3), 0 0 0 1em rgba(101, 255, 120, 0.3), 0 0 0 3em rgba(101, 255, 120, 0.3), 0 0 0 5em rgba(101, 255, 120, 0.3);
+              box-shadow: 0 0 0 0 rgba(101, 255, 120, 0.3), 0 0 0 1em rgba(101, 255, 120, 0.3), 0 0 0 3em rgba(101, 255, 120, 0.3), 0 0 0 5em rgba(101, 255, 120, 0.3);
+    }
+    100% {
+      -webkit-box-shadow: 0 0 0 1em rgba(101, 255, 120, 0.3), 0 0 0 3em rgba(101, 255, 120, 0.3), 0 0 0 5em rgba(101, 255, 120, 0.3), 0 0 0 8em rgba(101, 255, 120, 0);
+              box-shadow: 0 0 0 1em rgba(101, 255, 120, 0.3), 0 0 0 3em rgba(101, 255, 120, 0.3), 0 0 0 5em rgba(101, 255, 120, 0.3), 0 0 0 8em rgba(101, 255, 120, 0);
+    }
+  }
+
+  @-webkit-keyframes rippleRed {
+    0% {
+      -webkit-box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.3), 0 0 0 1em rgba(255, 0, 0, 0.3), 0 0 0 3em rgba(255, 0, 0, 0.3), 0 0 0 5em rgba(255, 0, 0, 0.3);
+              box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.3), 0 0 0 1em rgba(255, 0, 0, 0.3), 0 0 0 3em rgba(255, 0, 0, 0.3), 0 0 0 5em rgba(255, 0, 0, 0.3);
+    }
+    100% {
+      -webkit-box-shadow: 0 0 0 1em rgba(255, 0, 0, 0.3), 0 0 0 3em rgba(255, 0, 0, 0.3), 0 0 0 5em rgba(255, 0, 0, 0.3), 0 0 0 8em rgba(255, 0, 0, 0);
+              box-shadow: 0 0 0 1em rgba(255, 0, 0, 0.3), 0 0 0 3em rgba(255, 0, 0, 0.3), 0 0 0 5em rgba(255, 0, 0, 0.3), 0 0 0 8em rgba(255, 0, 0, 0);
+    }
+  }
+
+  @-webkit-keyframes rippleYellow {
+    0% {
+      -webkit-box-shadow: 0 0 0 0 rgba(255, 255, 51, 0.3), 0 0 0 1em rgba(255, 255, 51, 0.3), 0 0 0 3em rgba(255, 255, 51, 0.3), 0 0 0 5em rgba(255, 255, 51, 0.3);
+              box-shadow: 0 0 0 0 rgba(255, 255, 51, 0.3), 0 0 0 1em rgba(255, 255, 51, 0.3), 0 0 0 3em rgba(255, 255, 51, 0.3), 0 0 0 5em rgba(255, 255, 51, 0.3);
+    }
+    100% {
+      -webkit-box-shadow: 0 0 0 1em rgba(255, 255, 51, 0.3), 0 0 0 3em rgba(255, 255, 51, 0.3), 0 0 0 5em rgba(255, 255, 51, 0.3), 0 0 0 8em rgba(255, 255, 51, 0);
+              box-shadow: 0 0 0 1em rgba(255, 255, 51, 0.3), 0 0 0 3em rgba(255, 255, 51, 0.3), 0 0 0 5em rgba(255, 255, 51, 0.3), 0 0 0 8em rgba(255, 255, 51, 0);
+    }
+  }
+
+
+
+.heartSpeaking:before, .heartSpeaking:after{
+  background: red;
+}
+.heartStandby:before, .heartStandby:after{
+  background: rgba(128,128,128,1);
+}
+.heartListening:before, .heartListening:after{
+  background: rgba(101, 255, 120, 0.8);
+}
+.heartThinking:before, .heartThinking:after{
+  background: yellow;
 }
 
-@-webkit-keyframes rippleGreen {
-  0% {
-    -webkit-box-shadow: 0 0 0 0 rgba(101, 255, 120, 0.3), 0 0 0 1em rgba(101, 255, 120, 0.3), 0 0 0 3em rgba(101, 255, 120, 0.3), 0 0 0 5em rgba(101, 255, 120, 0.3);
-            box-shadow: 0 0 0 0 rgba(101, 255, 120, 0.3), 0 0 0 1em rgba(101, 255, 120, 0.3), 0 0 0 3em rgba(101, 255, 120, 0.3), 0 0 0 5em rgba(101, 255, 120, 0.3);
-  }
-  100% {
-    -webkit-box-shadow: 0 0 0 1em rgba(101, 255, 120, 0.3), 0 0 0 3em rgba(101, 255, 120, 0.3), 0 0 0 5em rgba(101, 255, 120, 0.3), 0 0 0 8em rgba(101, 255, 120, 0);
-            box-shadow: 0 0 0 1em rgba(101, 255, 120, 0.3), 0 0 0 3em rgba(101, 255, 120, 0.3), 0 0 0 5em rgba(101, 255, 120, 0.3), 0 0 0 8em rgba(101, 255, 120, 0);
-  }
+.heart:before, .heart:after {
+   position: absolute;
+   content: "";
+   left: 7px;
+   width: 52px;
+   top:-28px;
+   height: 80px;
+   border-radius: 50px 50px 0 0;
+   -webkit-transform: rotate(-45deg);
+   -moz-transform: rotate(-45deg);
+   -ms-transform: rotate(-45deg);
+   -o-transform: rotate(-45deg);
+   transform: rotate(-45deg);
+  -webkit-transform-origin: 0 100%;
+  -moz-transform-origin: 0 100%;
+  -ms-transform-origin: 0 100%;
+  -o-transform-origin: 0 100%;
+  transform-origin: 0 100%;
 }
 
-@-webkit-keyframes rippleRed {
-  0% {
-    -webkit-box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.3), 0 0 0 1em rgba(255, 0, 0, 0.3), 0 0 0 3em rgba(255, 0, 0, 0.3), 0 0 0 5em rgba(255, 0, 0, 0.3);
-            box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.3), 0 0 0 1em rgba(255, 0, 0, 0.3), 0 0 0 3em rgba(255, 0, 0, 0.3), 0 0 0 5em rgba(255, 0, 0, 0.3);
-  }
-  100% {
-    -webkit-box-shadow: 0 0 0 1em rgba(255, 0, 0, 0.3), 0 0 0 3em rgba(255, 0, 0, 0.3), 0 0 0 5em rgba(255, 0, 0, 0.3), 0 0 0 8em rgba(255, 0, 0, 0);
-            box-shadow: 0 0 0 1em rgba(255, 0, 0, 0.3), 0 0 0 3em rgba(255, 0, 0, 0.3), 0 0 0 5em rgba(255, 0, 0, 0.3), 0 0 0 8em rgba(255, 0, 0, 0);
-  }
+.heart:after {
+  top:-28px;
+   left: -44px;
+   -webkit-transform: rotate(45deg);
+   -moz-transform: rotate(45deg);
+   -ms-transform: rotate(45deg);
+   -o-transform: rotate(45deg);
+  transform: rotate(45deg);
+  -webkit-transform-origin: 100% 100%;
+  -moz-transform-origin: 100% 100%;
+  -ms-transform-origin: 100% 100%;
+  -o-transform-origin: 100% 100%;
+  transform-origin :100% 100%;
 }
 
-@-webkit-keyframes rippleYellow {
-  0% {
-    -webkit-box-shadow: 0 0 0 0 rgba(255, 255, 51, 0.3), 0 0 0 1em rgba(255, 255, 51, 0.3), 0 0 0 3em rgba(255, 255, 51, 0.3), 0 0 0 5em rgba(255, 255, 51, 0.3);
-            box-shadow: 0 0 0 0 rgba(255, 255, 51, 0.3), 0 0 0 1em rgba(255, 255, 51, 0.3), 0 0 0 3em rgba(255, 255, 51, 0.3), 0 0 0 5em rgba(255, 255, 51, 0.3);
-  }
-  100% {
-    -webkit-box-shadow: 0 0 0 1em rgba(255, 255, 51, 0.3), 0 0 0 3em rgba(255, 255, 51, 0.3), 0 0 0 5em rgba(255, 255, 51, 0.3), 0 0 0 8em rgba(255, 255, 51, 0);
-            box-shadow: 0 0 0 1em rgba(255, 255, 51, 0.3), 0 0 0 3em rgba(255, 255, 51, 0.3), 0 0 0 5em rgba(255, 255, 51, 0.3), 0 0 0 8em rgba(255, 255, 51, 0);
-  }
+/*This is the inside of the heart.*/
+#heartInner {
+   position:relative;
+
+   width: 100px;
+   height: 100px;
 }
+
+#heartInner p{
+  position:sticky;
+  text-align: center;
+  top: -50px;
+  z-index: 1;
+}
+
+     #heartInner:before{
+       position: absolute;
+       content: "";
+       left: 50px;
+       width: 45px;
+       top: -34px;
+       height: 75px;
+       background: white;
+       border-radius: 50px 50px 0 0;
+       -webkit-transform: rotate(-45deg);
+       -moz-transform: rotate(-45deg);
+       -ms-transform: rotate(-45deg);
+       -o-transform: rotate(-45deg);
+       transform: rotate(-45deg);
+      -webkit-transform-origin: 0 100%;
+      -moz-transform-origin: 0 100%;
+      -ms-transform-origin: 0 100%;
+      -o-transform-origin: 0 100%;
+      transform-origin: 0 100%;
+    }
+#heartInner:after {
+position: absolute;
+       content: "";
+       margin-left: 5px;
+       top: -34px;
+       width: 45px;
+       height: 75px;
+       background: white;
+       border-radius: 50px 50px 0 0;
+       -webkit-transform: rotate(-45deg);
+       -moz-transform: rotate(-45deg);
+       -ms-transform: rotate(-45deg);
+       -o-transform: rotate(-45deg);
+       transform: rotate(-45deg);
+
+}
+
+     #heartInner:after {
+       left: 0;
+
+       -webkit-transform: rotate(45deg);
+       -moz-transform: rotate(45deg);
+       -ms-transform: rotate(45deg);
+       -o-transform: rotate(45deg);
+      transform: rotate(45deg);
+      -webkit-transform-origin: 100% 100%;
+      -moz-transform-origin: 100% 100%;
+      -ms-transform-origin: 100% 100%;
+      -o-transform-origin: 100% 100%;
+      transform-origin :100% 100%;
+    }

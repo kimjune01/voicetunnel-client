@@ -24,7 +24,7 @@ if (hasUserMedia()) {
       Globals
 ------------------------------*/
 var GLOBAL_LIST = [];
-var socket = new WebSocket("wss://voiceminder.localtunnel.me/websocket/");
+var socket = new WebSocket("wss://voicenote.localtunnel.me/websocket/");
 // var socket = new WebSocket("wss://tornado.localtunnel.me/websocket/");
 var noteTextarea = $('#note-textarea');
 var instructions = $('#recording-instructions');
@@ -306,18 +306,38 @@ Standby - no animation, grey.
 */
 
 function toggleThinking(){
-  $('#trafficlight').css('animation', 'rippleYellow 0.7s linear infinite');
-  $('#trafficlight').css('background-color', 'yellow');
+  cleanHeartClasses();
+  $('.heart').first().css('animation', 'rippleYellow 0.7s linear infinite');
+  $("div.heart").first().addClass("heartThinking");
+  //$('#heart').css('background-color', 'yellow');
 }
 function toggleListening(){
-  $('#trafficlight').css('animation', 'rippleGreen 0.7s linear infinite');
-  $('#trafficlight').css('background-color', 'rgba(101, 255, 120, 0.8)');
+  cleanHeartClasses();
+  $('.heart').first().css('animation', 'rippleGreen 0.7s linear infinite');
+  $("div.heart").first().addClass("heartListening");
+  //$('#heart').css('background-color', 'rgba(101, 255, 120, 0.8)');
 }
 function toggleSpeaking(){
-  $('#trafficlight').css('animation', 'rippleRed 0.7s linear infinite');
-  $('#trafficlight').css('background-color', 'red');
+  cleanHeartClasses();
+  $('.heart').first().css('animation', 'rippleRed 0.7s linear infinite');
+
+  $("div.heart").first().addClass("heartSpeaking");
+  //$('#heart').css('background-color', 'red');
 }
 function toggleStandby(){
-  $('#trafficlight').css('animation', 'None');
-  $('#trafficlight').css('background-color', 'rgba(128,128,128,1)');
+  cleanHeartClasses();
+  $('.heart').first().css('animation', 'None');
+  $("div.heart").first().addClass("heartStandby");
+  //$('#heart').css('background-color', 'rgba(128,128,128,1)');
 }
+function cleanHeartClasses(){
+  $("div.heart").first().removeClass("heartStandby");
+  $("div.heart").first().removeClass("heartSpeaking");
+  $("div.heart").first().removeClass("heartThinking");
+  $("div.heart").first().removeClass("heartListening");
+  $("div.heart").first().removeClass("animation");
+}
+
+//toggleSpeaking();
+//$("div.heart").css(background-color, "black");
+
