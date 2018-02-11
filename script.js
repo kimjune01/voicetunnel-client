@@ -338,6 +338,7 @@ function cleanHeartClasses(){
   $("div.heart").first().removeClass("animation");
 }
 
+toggleSpeaking();
+
 //toggleSpeaking();
 //$("div.heart").css(background-color, "black");
-
