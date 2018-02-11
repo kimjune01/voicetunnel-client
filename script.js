@@ -338,7 +338,12 @@ function cleanHeartClasses(){
   $("div.heart").first().removeClass("animation");
 }
 
-toggleSpeaking();
+var scrollDelay = 2000;
+var scrollspeed = 2;
 
-//toggleSpeaking();
-//$("div.heart").css(background-color, "black");
+//write to the p tag at the bottom of the page.
+function writeToPage(text){
+  $("#displayText").append(text);
+}
+
+toggleSpeaking();
