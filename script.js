@@ -320,7 +320,6 @@ function toggleListening(){
 function toggleSpeaking(){
   cleanHeartClasses();
   $('.heart').first().css('animation', 'rippleRed 0.7s linear infinite');
-
   $("div.heart").first().addClass("heartSpeaking");
   //$('#heart').css('background-color', 'red');
 }
@@ -328,7 +327,6 @@ function toggleStandby(){
   cleanHeartClasses();
   $('.heart').first().css('animation', 'None');
   $("div.heart").first().addClass("heartStandby");
-  //$('#heart').css('background-color', 'rgba(128,128,128,1)');
 }
 function cleanHeartClasses(){
   $("div.heart").first().removeClass("heartStandby");
@@ -338,12 +336,7 @@ function cleanHeartClasses(){
   $("div.heart").first().removeClass("animation");
 }
 
-var scrollDelay = 2000;
-var scrollspeed = 2;
-
 //write to the p tag at the bottom of the page.
 function writeToPage(text){
-  $("#displayText").append(text);
+  $(".crawl").append('<p>' + text + '</p><br/>');
 }
-
-toggleSpeaking();

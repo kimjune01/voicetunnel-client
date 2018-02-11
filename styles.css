@@ -14,6 +14,9 @@
 }
 
 body {
+  width: 100%;
+  height: 100%;
+  overflow:hidden;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -113,17 +116,10 @@ body {
 
 /*This is the inside of the heart.*/
 #heartInner {
-   position:relative;
-
+   position:absolute;
    width: 100px;
    height: 100px;
-}
 
-#heartInner p{
-  position:sticky;
-  text-align: center;
-  top: -50px;
-  z-index: 1;
 }
 
  #heartInner:before{
@@ -131,10 +127,10 @@ body {
    content: "";
    left: 50px;
    width: 45px;
-   top: -35px;
-   height: 76px;
+   top: -26px;
+   height: 73px;
    background: white;
-   border-radius: 48px 48px 0 0;
+   border-radius: 50px 50px 0 0;
    -webkit-transform: rotate(-45deg);
    -moz-transform: rotate(-45deg);
    -ms-transform: rotate(-45deg);
@@ -150,9 +146,9 @@ body {
 position: absolute;
        content: "";
        margin-left: 5px;
-       top: -34px;
+       top: -26px;
        width: 45px;
-       height: 75px;
+       height: 73px;
        background: white;
        border-radius: 50px 50px 0 0;
        -webkit-transform: rotate(-45deg);
@@ -177,15 +173,59 @@ position: absolute;
   -o-transform-origin: 100% 100%;
   transform-origin :100% 100%;
 }
-
+/*https://css-tricks.com/snippets/css/star-wars-crawl-text/*/
 #displayBox{
-  position: absolute;
-  top: 230px;
-  align-self: center;
-  text-align: center;
-  margin: 10px auto;
-  word-wrap: normal;
+  display: flex;
+ justify-content: center;
+ position: relative;
+ height: 800px;
+ color: #feda4a;
+ font-family: 'Pathway Gothic One', sans-serif;
+ font-size: 500%;
+ font-weight: 600;
+ letter-spacing: 6px;
+ line-height: 150%;
+ perspective: 400px;
+ text-align: justify;
 }
+
+.crawl {
+  position: relative;
+  top: 9999px;
+  transform-origin: 50% 100%;
+  animation: crawl 60s linear;
+}
+
+.crawl > .title {
+  font-size: 90%;
+  text-align: center;
+}
+
+.crawl > .title h1 {
+  margin: 0 0 100px;
+  text-transform: uppercase;
+}
+
+.fade {
+  position: absolute;
+  width: 100%;
+  min-height: 60vh;
+  top: -150px;
+  background-image: linear-gradient(0deg, transparent, red 99%);
+  z-index: 1;
+}
+
+@keyframes crawl {
+  0% {
+    top: 0;
+    transform: rotateX(20deg)  translateZ(0);
+  }
+  100% {
+    top: -6000px;
+    transform: rotateX(25deg) translateZ(-2500px);
+  }
+}
+
 #displayText{
   text-align: center;
   background-color:	rgba(211,211,211, 0.5);
