@@ -206,6 +206,11 @@ position: absolute;
   text-transform: uppercase;
 }
 
+#cat-image {
+  max-height: 100vh;
+  max-width: 100vh;
+}
+
 .fade {
   position: absolute;
   width: 100%;

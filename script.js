@@ -24,7 +24,7 @@ if (hasUserMedia()) {
       Globals
 ------------------------------*/
 var GLOBAL_LIST = [];
-var socket = new WebSocket("wss://voicenote.localtunnel.me/websocket/");
+var socket = new WebSocket("wss://catapp.localtunnel.me/websocket/");
 // var socket = new WebSocket("wss://tornado.localtunnel.me/websocket/");
 var noteTextarea = $('#note-textarea');
 var instructions = $('#recording-instructions');
@@ -292,9 +292,28 @@ socket.onopen = function (event) {
 };
 
 socket.onmessage = function (event) {
-  console.log('onmessage: ' + event.data);
-  GLOBAL_LIST.push(event.data);
+  // console.log('onmessage: ' + event.data);
+  // event.data is now a json with actionType and actionDetail
+  parsed = JSON.parse(event.data)
+  actionType = parsed["actionType"]
+  switch(actionType) {
+    case 'speak':
+      GLOBAL_LIST.push(parsed["actionDetail"]);
+      break;
+    case 'show_image':
+      actionDetail = parsed['actionDetail']
+      console.log(actionDetail)
+      setCatImage(actionDetail.url)
+      break;
+    default:
+      console.log("OOPS~! UNDEFINED ACTION TYPE~~")
+  }
   setDecidingState();
+}
+
+function setCatImage(url) {
+  console.log(url)
+  $("#cat-image").attr("src", url);
 }
 
 /*-----------------------------
