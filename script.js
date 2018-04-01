@@ -24,8 +24,8 @@ if (hasUserMedia()) {
       Globals
 ------------------------------*/
 var GLOBAL_LIST = [];
-var socket = new WebSocket("wss://catapp.localtunnel.me/websocket/");
-// var socket = new WebSocket("wss://tornado.localtunnel.me/websocket/");
+// var socket = new WebSocket("wss://catapp.localtunnel.me/websocket/");
+var socket = new WebSocket("ws://secure-lowlands-10237.herokuapp.com/websocket/");
 var noteTextarea = $('#note-textarea');
 var instructions = $('#recording-instructions');
 
@@ -232,7 +232,7 @@ function readOutLoud(message) {
 	speech.rate = 1;
 	speech.pitch = 1;
 	window.speechSynthesis.speak(speech);
-  respondToPage(speech.text);
+  // respondToPage(speech.text);
 }
 
 speech.onend = function(e) {
@@ -274,7 +274,7 @@ function setSpeakingState() {
 
 function sendNote(content) {
   console.log("sendNote: ", content);
-  socket.send(content);
+  socket.send(JSON.stringify({"content": content}));
 }
 
 
@@ -292,7 +292,6 @@ socket.onopen = function (event) {
 };
 
 socket.onmessage = function (event) {
-  // console.log('onmessage: ' + event.data);
   // event.data is now a json with actionType and actionDetail
   parsed = JSON.parse(event.data)
   actionType = parsed["actionType"]
