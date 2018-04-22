@@ -85,8 +85,6 @@ function handleDecidingState() {
 //Wanting to resolve this by having a counter reset the listening state after a certain period of time.
 
 function handleListeningState() {
-    console.log("handleListeningState");
-    console.log("done handleListeningState");
     //recogTimer(20);
     restartRecognition();
 }
@@ -166,7 +164,6 @@ function bindSpeechRecognition() {
 
 
 function restartRecognition(){
-  console.log("restartRecognition - off and on again.");
   recognition = new SpeechRecognition();
   bindSpeechRecognition()
   // recognition.stop();
@@ -271,10 +268,18 @@ function setSpeakingState() {
       Helper Functions
 ------------------------------*/
 
+function wrapNote(content) {
+  
+  return JSON.stringify(
+    {"speech": content,
+    "endpoint":"https://zydkkkbc6k.execute-api.us-east-1.amazonaws.com/dev/ping"}
+  );
+}
 
 function sendNote(content) {
-  console.log("sendNote: ", content);
-  socket.send(JSON.stringify({"content": content}));
+  var wrapped = wrapNote(content);
+  console.log("wrapped note:", wrapped);
+  socket.send(wrapped);
 }
 
 
