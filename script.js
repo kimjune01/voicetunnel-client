@@ -36,7 +36,9 @@ var ClientState = Object.freeze({
   "speaking":2,
   "deciding":3
 })
-
+var userState = {
+  "directory":"home"
+}
 var state = ClientState.listening;
 var recogStarted = false;
 
@@ -269,10 +271,13 @@ function setSpeakingState() {
 ------------------------------*/
 
 function wrapNote(content) {
-  
+
   return JSON.stringify(
-    {"speech": content,
-    "endpoint":"https://zydkkkbc6k.execute-api.us-east-1.amazonaws.com/dev/ping"}
+    {
+      "speech": content,
+      "endpoint":"https://hap2a5df4m.execute-api.us-east-1.amazonaws.com/dev/ping",
+      "state": userState
+    }
   );
 }
 
@@ -299,15 +304,19 @@ socket.onopen = function (event) {
 socket.onmessage = function (event) {
   // event.data is now a json with actionType and actionDetail
   parsed = JSON.parse(event.data)
+  console.log("parsed: ", parsed)
+  userState = parsed["state"]
+  console.log("userState: ", userState)
   actionType = parsed["actionType"]
   switch(actionType) {
     case 'speak':
       GLOBAL_LIST.push(parsed["actionDetail"]);
+      setCatImage("")
       break;
     case 'show_image':
       actionDetail = parsed['actionDetail']
-      console.log(actionDetail)
-      setCatImage(actionDetail.url)
+      console.log("actionDetail: ", actionDetail)
+      setCatImage(actionDetail)
       break;
     default:
       console.log("OOPS~! UNDEFINED ACTION TYPE~~")
